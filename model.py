@@ -28,7 +28,8 @@ config = {
     "Flash" : "Off",
     "WhiteBalance" : "Auto",
     "Artist": "Salman S",
-    "OwnerName": "Gh0st"
+    "OwnerName": "Gh0st",
+    "XMPToolkit": "XMP Core 5.1.2"
 }
 
 gh0st_config = BaseConfig(config)

@@ -1,22 +1,22 @@
 import os 
 from exiftool import ExifTool, ExifToolHelper
+from PIL import Image
 from model import gh0st_config
+
 
 root_path = os.path.dirname(os.path.abspath(__file__))
 
 
-def open_image_file(file_name):
-    with open(file_name, 'rb') as file:
-        return file
+
 
 
 images = []
 
-images_dir = os.path.join(root_path, 'photos')
+images_dir = os.path.join('/home/salman/', 'unsplash')
 
 for file_name in os.listdir(images_dir):
     if file_name.endswith('.jpg') or file_name.endswith('.jpeg'):
-        images.append(open_image_file(os.path.join(images_dir, file_name)))
+        images.append(os.path.join(images_dir, file_name))
 
 
 
@@ -48,12 +48,41 @@ def set_tags_on_a_file(image_path: str, tags: dict) -> bool:
     """
     try:
         with ExifToolHelper() as et:
-            et.set_tags(image_path, tags, params='-overwrite_orignal')
+            et.set_tags(image_path, tags, params=['-overwrite_original'])
         return True
     except Exception as e:
         print(f"Error occured while setting tags : {e}")
         return False
 
-image_file = os.path.join(images_dir, 'snakey.jpeg')
-nuke_all_meta_data(image_file)
-set_tags_on_a_file(image_file, gh0st_config.data)
+
+def increase_file_size(image_path, target_size_bytes):
+    """Increase the size of a file.
+
+    :param image_path: Path to the image.
+
+    """
+    with Image.open(image_path) as image:
+        # Calculate the factor by which to scale the image's size
+        original_size_bytes = image.size[0] * image.size[1] * 3  # Assuming 3 bytes per pixel
+        scaling_factor = (target_size_bytes / original_size_bytes) ** 0.5
+    
+        # Resize the image to increase its size
+        new_width = int(image.size[0] * scaling_factor)
+        new_height = int(image.size[1] * scaling_factor)
+        image = image.resize((new_width, new_height), Image.LANCZOS)
+
+        image.save(image_path, optimize=True, quality=300)
+
+
+    print(f"File size increased for {image_path}")
+
+    return True
+
+
+for image in images:
+    image_file = image
+
+    nuke_all_meta_data(image_file)
+    set_tags_on_a_file(image_file, gh0st_config.data)
+
+    increase_file_size(image_file, 60000)
