@@ -1,0 +1,3 @@
+exif==1.6.0
+plum-py==0.8.7
+PyExifTool==0.5.6
